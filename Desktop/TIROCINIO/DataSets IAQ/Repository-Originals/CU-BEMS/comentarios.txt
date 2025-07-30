@@ -1,0 +1,8 @@
+https://www.kaggle.com/datasets/claytonmiller/cubems-smart-building-energy-and-iaq-data
+
+Temperature (°C), relative humidity (%), and ambient light (lux) 
+"one-minute intervals
+Floor and year
+Many zones per flor "
+Bangkok, Thailand
+01/07/2018  ... 12/092018          106,072 registros
