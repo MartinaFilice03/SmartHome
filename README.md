@@ -1,12 +1,12 @@
 # SmartHome
 Progetto IoT con ThingsBoard e Docker
 
-Progetto universitario realizzato con [ThingsBoard](https://thingsboard.io/) e Docker per il monitoraggio di dispositivi IoT.
+Progetto universitario realizzato con ThingsBoard e Docker per il monitoraggio di dispositivi IoT.
 
 ## Tecnologie utilizzate
 
-- ThingsBoard CE (Community Edition)
-- Docker & Docker Compose
+- ThingsBoard CE (Community Edition): https://thingsboard.io
+- Docker & Docker Compose: https://www.docker.com
 - PostgreSQL
 
 ## Installazione e Configurazione
