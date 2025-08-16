@@ -1,0 +1,26 @@
+# Utilizzo del protocollo AODV
+
+## 1. Scopo generale
+- Simulare il comportamento di una rete ad-hoc on-demand:
+  - i nodi non hanno rotte preconfigurate, ma le scoprono solo quando serve.
+- Mostrare come i pacchetti possano essere inoltrati tramite nodi intermedi quando il Sink non è direttamente raggiungibile.
+- Simulare le fasi principali:
+  - **RREQ (Route Request):** il nodo sorgente chiede se esiste un percorso verso il Sink.
+  - **RREP (Route Reply):** un nodo (o il Sink) risponde con la rotta.
+  - **Cache:** memorizzazione temporanea delle rotte con un TTL.
+  - **RERR (opzionale):** gestione di link rotti con nuova discovery.
+
+## 2. Integrazione nel progetto
+Nel file `send_data_10_aodv.py`:
+- Ogni stanza legge un valore (dataset o sensore).
+- Lo cifra e lo invia via HTTP a ThingsBoard.
+
+Con AODV:
+1. Lo script chiede una rotta al simulatore AODV.
+2. Viene simulato l’inoltro hop-by-hop.
+3. Solo il Sink effettua l’invio reale a ThingsBoard (gli altri nodi “inoltrano” nei log).
+
+## 3. Perché è utile
+- **Visualizzazione didattica:** mostra i percorsi dei pacchetti nei log.
+- **Scalabilità:** la topologia si può modificare facilmente (in `DEFAULT_NEIGHBORS`).
+- **Efficienza:** grazie al TTL delle rotte, si riducono discovery inutili.
