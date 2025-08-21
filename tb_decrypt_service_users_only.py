@@ -17,7 +17,6 @@ from typing import Optional, Dict, Any, List
 
 from flask import Flask, request, jsonify
 import requests
-from flask import Flask, request, jsonify
 from flask_cors import CORS
 
 app = Flask(__name__)
@@ -33,8 +32,8 @@ KEYS_DIR = Path(os.environ.get("KEYS_DIR", "./keys")).resolve()
 POLICY_FILE = Path(os.environ.get("POLICY_FILE", "./policy.json")).resolve()
 ALLOW_TENANT = os.environ.get("ALLOW_TENANT", "false").lower() == "true"
 REQUEST_TIMEOUT = float(os.environ.get("REQUEST_TIMEOUT", "10"))
-SEND_TO_SEPARATE_DEVICE = False 
 
+#API
 def tb_get_user_info(jwt: str) -> Optional[Dict[str, Any]]:
     r = requests.get(f"{TB_URL}/api/auth/user",
                      headers={"X-Authorization": f"Bearer {jwt}"},
@@ -42,6 +41,7 @@ def tb_get_user_info(jwt: str) -> Optional[Dict[str, Any]]:
     if r.status_code != 200:
         return None
     return r.json()
+
 
 def tb_get_customer_devices(jwt: str, customer_id: str) -> List[Dict[str, Any]]:
     out: List[Dict[str, Any]] = []
@@ -53,6 +53,7 @@ def tb_get_customer_devices(jwt: str, customer_id: str) -> List[Dict[str, Any]]:
             timeout=REQUEST_TIMEOUT,
         )
         if r.status_code != 200:
+            print("⚠️ Errore recupero device customer:", r.status_code, r.text)
             return []
         data = r.json()
         out.extend(data.get("data", []))
@@ -62,6 +63,29 @@ def tb_get_customer_devices(jwt: str, customer_id: str) -> List[Dict[str, Any]]:
             break
     return out
 
+
+def tb_get_tenant_devices(jwt: str) -> List[Dict[str, Any]]:
+    """Recupera tutti i device del tenant (solo per TENANT_ADMIN)."""
+    out: List[Dict[str, Any]] = []
+    page, page_size = 0, 100
+    while True:
+        r = requests.get(
+            f"{TB_URL}/api/tenant/devices?pageSize={page_size}&page={page}",
+            headers={"X-Authorization": f"Bearer {jwt}"},
+            timeout=REQUEST_TIMEOUT
+        )
+        if r.status_code != 200:
+            print("⚠️ Errore recupero device tenant:", r.status_code, r.text)
+            break
+        data = r.json()
+        out.extend(data.get("data", []))
+        if data.get("hasNext"):
+            page += 1
+        else:
+            break
+    return out
+
+
 def tb_find_device_id_by_name(jwt: str, customer_id: str, device_name: str) -> Optional[str]:
     devices = tb_get_customer_devices(jwt, customer_id)
     for device in devices:
@@ -69,21 +93,20 @@ def tb_find_device_id_by_name(jwt: str, customer_id: str, device_name: str) -> O
             return device.get("id", {}).get("id")
     return None
 
+
 def tb_fetch_all_encrypted(jwt: str, device_id: str, limit: int = 100) -> List[Dict[str, Any]]:
     """Recupera fino a `limit` valori cifrati dalla telemetry."""
     r = requests.get(
         f"{TB_URL}/api/plugins/telemetry/DEVICE/{device_id}/values/timeseries",
-        params={"keys": "encrypted_value", "limit": limit, "orderBy": "DESC"}, 
+        params={"keys": "encrypted_value", "limit": limit, "orderBy": "DESC"},
         headers={"X-Authorization": f"Bearer {jwt}"},
         timeout=REQUEST_TIMEOUT,
     )
     if r.status_code != 200:
         return []
     data = r.json()
-    vals: List[Dict[str, Any]] = data.get("encrypted_value", [])
-    return vals 
-
-
+    return data.get("encrypted_value", [])
+    
 #CHIAVI
 def _load_private_hex_for_room(room: str) -> Optional[str]:
     pem_path = KEYS_DIR / f"private_key_{room}.pem"
@@ -99,6 +122,7 @@ def _load_private_hex_for_room(room: str) -> Optional[str]:
     key = serialization.load_pem_private_key(pem_data, password=None, backend=default_backend())
     priv_int = key.private_numbers().private_value
     return f"{priv_int:064x}"
+
 
 def decrypt_b64_with_priv_hex(b64_cipher: str, priv_hex: str) -> Optional[str]:
     try:
@@ -116,6 +140,7 @@ def _load_policy() -> Dict[str, List[str]]:
         except Exception:
             return {}
     return {}
+
 
 def is_user_allowed_for_room(user_info: Dict[str, Any], room: str) -> bool:
     authority = user_info.get("authority")
@@ -145,54 +170,74 @@ def is_user_allowed_for_room(user_info: Dict[str, Any], room: str) -> bool:
         if ident and ident in pol:
             return room in set(pol[ident])
     return True
-
-#MANDA I DATI DECIFRATI
+    
+#MANDA DATI DECIFRATI
 def tb_fetch_encrypted_series(jwt: str, device_id: str,
                               start_ts: int, end_ts: int,
-                              limit: int = 1000) -> List[Dict[str, Any]]:
-    """Recupera una serie completa di valori cifrati da ThingsBoard."""
-    r = requests.get(
-        f"{TB_URL}/api/plugins/telemetry/DEVICE/{device_id}/values/timeseries",
-        params={
-            "keys": "encrypted_value",
-            "startTs": start_ts,
-            "endTs": end_ts,
-            "limit": limit,
-            "orderBy": "ASC"
-        },
-        headers={"X-Authorization": f"Bearer {jwt}"},
-        timeout=REQUEST_TIMEOUT,
-    )
-    if r.status_code != 200:
-        return []
-    data = r.json()
-    return data.get("encrypted_value", [])
+                              limit: int = 26000) -> List[Dict[str, Any]]:
+    all_data: List[Dict[str, Any]] = []
+    page_start = start_ts
+
+    while len(all_data) < limit:
+        r = requests.get(
+            f"{TB_URL}/api/plugins/telemetry/DEVICE/{device_id}/values/timeseries",
+            params={
+                "keys": "encrypted_value",
+                "startTs": page_start,
+                "endTs": end_ts,
+                "limit": 1000,
+                "orderBy": "ASC"
+            },
+            headers={"X-Authorization": f"Bearer {jwt}"},
+            timeout=REQUEST_TIMEOUT,
+        )
+        if r.status_code != 200:
+            break
+        batch = r.json().get("encrypted_value", [])
+        if not batch:
+            break
+        all_data.extend(batch)
+        page_start = batch[-1]["ts"] + 1
+        if len(batch) < 1000:
+            break
+
+    return all_data
 
 
 def send_bulk_decrypted_to_tb(jwt: str, device_id: str, values: List[Dict[str, Any]]):
-    """Invia tutti i valori decifrati a ThingsBoard mantenendo il timestamp."""
     url = f"{TB_URL}/api/plugins/telemetry/DEVICE/{device_id}/timeseries/values"
-    headers = {
-        "Content-Type": "application/json",
-        "X-Authorization": f"Bearer {jwt}"
-    }
-    
-    payload = []
-    for v in values:
-        payload.append({
-            "ts": v["ts"],
-            "values": {
-                "decrypted_value": v["decrypted_value"]
-            }
-        })
+    headers = {"Content-Type": "application/json", "X-Authorization": f"Bearer {jwt}"}
+
+    if not values:
+       payload = {"ts": 0, "values": {"decrypted_value": 0}}
+    else:
+        payload = [{"ts": v["ts"], "values": {"decrypted_value": v["decrypted_value"]}} for v in values]
+
     try:
         r = requests.post(url, headers=headers, json=payload, timeout=REQUEST_TIMEOUT)
         if r.status_code != 200:
-            print(f"⚠️ Errore invio bulk telemetry: {r.status_code} -> {r.text}")
+            print(f"⚠️ Errore invio telemetry: {r.status_code} -> {r.text}")
     except Exception as e:
         print(f"❌ Errore POST bulk: {e}")
 
 
+def send_dummy_to_all_rooms(jwt: str, user: Dict[str, Any]):
+    authority = user.get("authority")
+    if authority == "TENANT_ADMIN":
+        devices = tb_get_tenant_devices(jwt)
+    else:
+        customer_id = user.get("customerId", {}).get("id")
+        devices = tb_get_customer_devices(jwt, customer_id)
+
+    for dev in devices:
+        dev_id = dev["id"]["id"]
+        url = f"{TB_URL}/api/plugins/telemetry/DEVICE/{dev_id}/timeseries/values"
+        headers = {"Content-Type": "application/json", "X-Authorization": f"Bearer {jwt}"}
+        payload = {"ts": 0, "values": {"decrypted_value": 0}}
+        r = requests.post(url, headers=headers, json=payload, timeout=REQUEST_TIMEOUT)
+        print(f"{dev['name']} -> {r.status_code} {r.text}")
+
+#API FLASK
 @app.get("/decrypt")
 def api_decrypt():
     auth = request.headers.get("Authorization", "")
@@ -206,7 +251,7 @@ def api_decrypt():
 
     start_ts = int(request.args.get("startTs", "0"))
     end_ts = int(request.args.get("endTs", str(int(__import__("time").time() * 1000))))
-    limit = int(request.args.get("limit", "1000"))
+    limit = int(request.args.get("limit", "100000"))
 
     user = tb_get_user_info(jwt)
     if not user:
@@ -233,8 +278,8 @@ def api_decrypt():
     for item in enc_list:
         plain = decrypt_b64_with_priv_hex(item["value"], priv_hex)
         try:
-            val = float(plain)  # forza a numero
-        except ValueError:
+            val = float(plain)
+        except (ValueError, TypeError):
             val = None
 
         decrypted_list.append({
@@ -245,11 +290,8 @@ def api_decrypt():
 
     send_bulk_decrypted_to_tb(jwt, dev_id, decrypted_list)
 
-    return jsonify({
-        "room": room,
-        "count": len(decrypted_list),
-        "values": decrypted_list
-    })
+    return jsonify({"room": room, "count": len(decrypted_list), "values": decrypted_list})
+
 
 def cli_decrypt(jwt: str, room: str) -> None:
     class DummyReq:
@@ -269,11 +311,18 @@ if __name__ == "__main__":
     parser.add_argument("--serve", action="store_true", help="Run Flask server on 0.0.0.0:5050")
     parser.add_argument("--jwt", help="TB JWT for quick CLI test")
     parser.add_argument("--room", help="Device name (room)")
+    parser.add_argument("--init-dummy", action="store_true", help="Send dummy decrypted_value to all devices")
     args = parser.parse_args()
 
     if args.serve:
         app.run(host="0.0.0.0", port=5050, debug=True)
+    elif args.init_dummy and args.jwt:
+        user = tb_get_user_info(args.jwt)
+        if not user:
+            print("❌ Token non valido")
+        else:
+            send_dummy_to_all_rooms(args.jwt, user)
     elif args.jwt and args.room:
         cli_decrypt(args.jwt, args.room)
     else:
-        print("Use --serve to start the server, or --jwt <JWT> --room <Room> for CLI mode.")
+        print("Use --serve, or --jwt <JWT> --room <Room>, or --init-dummy --jwt <JWT>")
