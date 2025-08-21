@@ -31,9 +31,15 @@ Una volta entrato in questo sito per poter procedere si deve creare un tenant e 
 - dashboards/ —  File JSON delle dashboard
 - README.md — Documentazione del progetto
 - CO2_Adeunis - Dataset contenente i dati di CO2 riguardante 10 stanze a cui è associato il Timestamp e Data e ora
-- ground_plan_sensors.jpg - Piantina delle stanze 
+- ground_plan_sensors.jpg - Piantina delle stanze
+- tb_decrypt_service_users_only.py - Servizio per decifrare la telemetria cifrata dei device su ThingsBoard
+- cartella SvolgimentoProgetto
+- cartella Spiegazioni ed Istruzioni
 
 ## Note:
 - Il progetto è sviluppato con l'utilizzo di Docker Desktop come applicazione e ci si collega tramite interfaccia web a ThingsBoard
 - Per lavorare in gruppo, i file vengono condivisi su GitHub.
 - Per importare dati/dispositivi tra ambienti diversi si usano le funzioni di export/import di ThingsBoard
+- Nella piattaforma viene utilizzato HTML per creare un grafico con bottone per accedere ai dati e l'aggiunta di email e password per verificare l'autenticazione
+- Viene utilizzato python per gli script che servono per mandare i dati cifrati ai dispositivi e poi decifrare i dati e rimandarli a ThingsBoard per visualizzarli tramite i grafici
+- Come algoritmo di routing viene utilizzato AODV, con i relativi messaggi di Route Request e Reply, per mettere in comunicazione le varie stanze in base alla cartina 
