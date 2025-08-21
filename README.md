@@ -10,17 +10,31 @@ Progetto universitario realizzato con ThingsBoard e Docker per il monitoraggio d
 - PostgreSQL
 
 ## Installazione e Configurazione
-Per utilizzare ThingsBoard e Docker inizialmente si deve installare Docker tramite il seguente sito, se si sta utilizzando un computer Apple:
-https://docs.docker.com/desktop/setup/install/mac-install/
 
-Successivamente si deve configurare tutto e avviare i container tramite la riga su terminale:
+### 1. Installare Docker
+Se utilizzi un computer **Apple (macOS)**, segui la guida ufficiale:  
+[Installazione Docker Desktop per Mac](https://docs.docker.com/desktop/setup/install/mac-install/)
+
+Per altri sistemi operativi:  
+- [Installazione su Windows](https://docs.docker.com/desktop/setup/install/windows-install/)  
+- [Installazione su Linux](https://docs.docker.com/engine/install/)  
+
+### 2. Avviare ThingsBoard con Docker Compose
+Dopo aver clonato il repository ed esserti posizionato nella cartella del progetto, esegui:
 docker-compose up -d
 
-Una volta avviati i container si deve accedere da browser al seguente link:
-http://localhost:8080
-con le credenziali di deafult.
+### 3. Accedere all’interfaccia web
+Apri il browser e vai su: http://localhost:8080
 
-Una volta entrato in questo sito per poter procedere si deve creare un tenant e aggiungere un nuovo utente per poi poter creare dispositivi/dashboard e inviare allarmi e notifiche.
+Credenziali di default di ThingsBoard CE:
+- Username: tenant@thingsboard.org
+- Password: tenant
+
+### 4. Configurazione iniziale
+- Crea un nuovo tenant
+- Aggiungi un nuovo utente
+- Crea dispositivi e dashboard
+- Configura allarmi e notifiche
 
 ## Collaboratori
 - Martina Filice
@@ -28,13 +42,21 @@ Una volta entrato in questo sito per poter procedere si deve creare un tenant e 
 
 ## Struttura del progetto
 - docker-compose.yml — Configurazione per ThingsBoard e PostgreSQL
-- dashboards/ —  File JSON delle dashboard
 - README.md — Documentazione del progetto
 - CO2_Adeunis - Dataset contenente i dati di CO2 riguardante 10 stanze a cui è associato il Timestamp e Data e ora
 - ground_plan_sensors.jpg - Piantina delle stanze
 - tb_decrypt_service_users_only.py - Servizio per decifrare la telemetria cifrata dei device su ThingsBoard
-- cartella SvolgimentoProgetto
-- cartella Spiegazioni ed Istruzioni
+- SvolgimentoProgetto/ — report passo-passo del progetto
+- Spiegazioni ed Istruzioni/ — guide e manuali d’uso
+- dashboards/ — JSON pronti all’importazione
+
+## Uso del progetto
+Una volta avviato tutto si può:
+- Monitorare i sensori
+- Vedere i grafici CO2 per ogni stanza
+- Gestire utenti e tenant
+- Inviare allarmi e notifiche
+- Creazione di diverse dashboard con all'interno uno o più widget
 
 ## Note:
 - Il progetto è sviluppato con l'utilizzo di Docker Desktop come applicazione e ci si collega tramite interfaccia web a ThingsBoard
