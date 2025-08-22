@@ -1,0 +1,21 @@
+{
+  "tecnico1@demo.local": [
+    "Zone2_window1",
+    "Zone2_window2",
+    "Zone2_back",
+    "Break_room"
+  ],
+
+  "utente2@libera.it": [
+    "Zone3_window",
+    "Zone3_back",
+    "Meeting3",
+    "Meeting4",
+    "Break_room"
+  ],
+
+  "utente3@libera.it": [
+    "Meeting1",
+    "Meeting2"
+  ]
+}
