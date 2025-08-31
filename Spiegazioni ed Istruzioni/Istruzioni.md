@@ -2,7 +2,7 @@
 - Questo progetto contiene uno script Python che simula la generazione, cifratura e invio di dati a ThingsBoard, una piattaforma IoT open-source.
 
 ## Come eseguire lo script
-# Requisiti
+Requisiti
 - Python 3.10 o superiore
 - Un'istanza attiva di ThingsBoard (locale o cloud)
 - Il Device Access Token (preso dal pannello del dispositivo su ThingsBoard)
