@@ -7,7 +7,7 @@
     - Email: sysadmin@thingsboard.org
     - Password: sysadmin
 
-## 2. Creazione di un Tenant (se necessario)
+## 2. Creazione di un Tenant
 - Vai su Tenants dal menu principale.
 - Clicca su Add New Tenant.
 - Inserisci nome e dettagli, poi salva.
@@ -29,13 +29,13 @@
 - Dopo la creazione, apri la scheda Credentials del device.
 - Copia il Device Access Token, ti servirà per l’invio dei dati.
 
-## 5. Creazione di una Dashboard
+## 5. Creazione della Dashboard
 - Vai su Dashboards dal menu.
 - Clicca su Add New Dashboard.
 - Inserisci nome e descrizione, salva.
 - Apri la dashboard → clicca su Add Widget.
 - Scegli il tipo di widget:
-  - Es. Timeseries Chart, Gauge, Latest Value, ecc.
+  - Es. Timeseries Chart, Gauge, Latest Value. 
 - Configura il widget:
   - Seleziona il device.
   - Scegli le chiavi dei dati (es. temperature, humidity, co2).
