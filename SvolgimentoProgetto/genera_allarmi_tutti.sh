@@ -1,7 +1,7 @@
 #!/bin/bash
 
-#Inserire il token dell'amministratore
-TOKEN="eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJmbWFydHkyMzA4QGdtYWlsLmNvbSIsInVzZXJJZCI6IjE1OTU2MTEwLTZiZDYtMTFmMC05N2U1LWMxMWFiMWIzN2IxMyIsInNjb3BlcyI6WyJURU5BTlRfQURNSU4iXSwic2Vzc2lvbklkIjoiNmJkODk1ZTItNTRkNC00YjRjLWEzNzgtOGRhNTRiNDYyMTc0IiwiZXhwIjoxNzU2NjY5MzAxLCJpc3MiOiJ0aGluZ3Nib2FyZC5pbyIsImlhdCI6MTc1NjY2MDMwMSwiZmlyc3ROYW1lIjoiTWFydGluYSIsImxhc3ROYW1lIjoiRmlsaWNlIiwiZW5hYmxlZCI6dHJ1ZSwiaXNQdWJsaWMiOmZhbHNlLCJ0ZW5hbnRJZCI6IjFjMDRhZDQwLTZiZDUtMTFmMC05N2U1LWMxMWFiMWIzN2IxMyIsImN1c3RvbWVySWQiOiIxMzgxNDAwMC0xZGQyLTExYjItODA4MC04MDgwODA4MDgwODAifQ.s5AXRrxPu6IP4v3gKJLhybpHl-_ombG83lF61Z5x474NZAwqPEdSpDDOcVc0vWhp-oSm36mGp2rIO-uGjj7I-Q"
+#Token dell'amministratore
+TOKEN="eyJhbGciOiJIUzUxMiJ9..."
 THINGSBOARD_URL="http://localhost:8080"
 
 #Recupera tutti gli ID dei dispositivi
@@ -9,21 +9,21 @@ echo "📤 Chiamata API per ottenere i dispositivi:"
 response=$(curl -s -X GET "$THINGSBOARD_URL/api/tenant/devices?pageSize=1000&page=0" \
   -H "X-Authorization: Bearer $TOKEN")
 
-echo "$response" | jq . 
-
+echo "$response" | jq . #Stampa JSON formattato (debug)
 device_ids=$(echo "$response" | jq -r '.data[].id.id')
 
-#Timestamp
+#Finestra temporale allarme
 start_ts=$(($(date +%s)*1000))
-end_ts=$((start_ts + 600000))  # +10 minuti
+end_ts=$((start_ts + 600000)) 
 
-#Valore fittizio della media (simulazione)
+#Valore medio simulato per la logica di allarme
 media_calcolata=450
 
-#Loop su ogni dispositivo
+#Ciclo su ogni device
 for device_id in $device_ids; do
   echo "📡 Controllo per dispositivo: $device_id (media: $media_calcolata)"
 
+  #Selezione tipo/severità in base alla media
   if (( media_calcolata < 350 )); then
     tipo_allarme="media_bassa"
     severity="WARNING"
@@ -40,6 +40,7 @@ for device_id in $device_ids; do
     dettaglio="Media fuori range accettabile"
   fi
 
+  #Costruzione payload allarme 
   json=$(jq -n \
     --arg id "$device_id" \
     --arg type "$tipo_allarme" \
@@ -64,11 +65,13 @@ for device_id in $device_ids; do
       }
     }')
 
+  #Invio allarme
   response=$(curl -s -o /dev/null -w "%{http_code}" -X POST "$THINGSBOARD_URL/api/alarm" \
     -H "Content-Type: application/json" \
     -H "X-Authorization: Bearer $TOKEN" \
     -d "$json")
 
+  #Esito
   if [[ "$response" == "200" || "$response" == "201" ]]; then
     echo "✅ Allarme '$tipo_allarme' creato con successo per $device_id"
   else
