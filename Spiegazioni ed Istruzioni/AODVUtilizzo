@@ -1,26 +1,24 @@
 # Utilizzo del protocollo AODV
 
 ## 1. Scopo generale
-- Simulare il comportamento di una rete ad-hoc on-demand:
-  - i nodi non hanno rotte preconfigurate, ma le scoprono solo quando serve.
-- Mostrare come i pacchetti possano essere inoltrati tramite nodi intermedi quando il Sink non è direttamente raggiungibile.
-- Simulare le fasi principali:
-  - **RREQ (Route Request):** il nodo sorgente chiede se esiste un percorso verso il Sink.
-  - **RREP (Route Reply):** un nodo (o il Sink) risponde con la rotta.
-  - **Cache:** memorizzazione temporanea delle rotte con un TTL.
-  - **RERR (opzionale):** gestione di link rotti con nuova discovery.
+Questa simulazione mostra come funziona una rete ad-hoc on-demand:
+- I nodi non hanno rotte preconfigurate, ma le scoprono solo quando serve.
+- I pacchetti possono essere inoltrati tramite nodi intermedi, se il Sink non è direttamente raggiungibile.
+Le fasi principali del protocollo:
+- RREQ (Route Request): il nodo sorgente chiede una rotta verso il Sink.
+- RREP (Route Reply): il Sink (o un nodo intermedio che conosce la rotta) risponde.
+- Cache: le rotte vengono memorizzate temporaneamente con un TTL configurabile.
+- RERR (opzionale): gestione di link rotti con nuova discovery.
 
 ## 2. Integrazione nel progetto
-Nel file `send_data_10_aodv.py`:
-- Ogni stanza legge un valore (dataset o sensore).
-- Lo cifra e lo invia via HTTP a ThingsBoard.
-
-Con AODV:
-1. Lo script chiede una rotta al simulatore AODV.
-2. Viene simulato l’inoltro hop-by-hop.
-3. Solo il Sink effettua l’invio reale a ThingsBoard (gli altri nodi “inoltrano” nei log).
+Nel file send_data_10_aodv.py:
+- Ogni nodo legge un valore da dataset/sensore.
+- Lo cifra e chiede una rotta al simulatore AODV.
+- Il pacchetto viene simulato hop-by-hop attraverso i vicini definiti
+- Solo il Sink invia realmente i dati a ThingsBoard tramite HTTP.
+- I nodi intermedi si limitano a inoltrare i pacchetti (visibile nei log).
 
 ## 3. Perché è utile
-- **Visualizzazione didattica:** mostra i percorsi dei pacchetti nei log.
-- **Scalabilità:** la topologia si può modificare facilmente (in `DEFAULT_NEIGHBORS`).
-- **Efficienza:** grazie al TTL delle rotte, si riducono discovery inutili.
+- Didattica: i log mostrano come i pacchetti “viaggiano” nella rete.
+- Efficienza: grazie al TTL delle rotte, si riducono discovery ripetute.
+- Debugging: i log permettono di verificare se le rotte sono trovate e se i pacchetti seguono il percorso corretto.
