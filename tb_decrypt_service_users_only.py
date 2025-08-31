@@ -1,14 +1,4 @@
 #!/usr/bin/env python3
-"""
-Users-only decrypt service for ThingsBoard CE.
-
-- Consente SOLO CUSTOMER_USER (opzione: permetti TENANT_ADMIN per test via ALLOW_TENANT=true).
-- Verifica che il device richiesto appartenga allo STESSO customer dell'utente.
-- (Opzionale) Controllo per-utente via policy.json (utile se tutti gli utenti stanno nello stesso customer).
-- Decifra l'ultimo timeseries `encrypted_value` usando le chiavi private locali.
-- Invia il dato decifrato a ThingsBoard come `decrypted_value`.
-"""
-
 import base64
 import json
 import os
@@ -20,7 +10,7 @@ import requests
 from flask_cors import CORS
 
 app = Flask(__name__)
-CORS(app)
+CORS(app) #Abilita CORS per l’API
 
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.backends import default_backend
@@ -42,7 +32,7 @@ def tb_get_user_info(jwt: str) -> Optional[Dict[str, Any]]:
         return None
     return r.json()
 
-
+#Elenca i device del customer, con paginazione
 def tb_get_customer_devices(jwt: str, customer_id: str) -> List[Dict[str, Any]]:
     out: List[Dict[str, Any]] = []
     page, page_size = 0, 100
@@ -63,7 +53,7 @@ def tb_get_customer_devices(jwt: str, customer_id: str) -> List[Dict[str, Any]]:
             break
     return out
 
-
+#Elenca tutti i device del tenant (solo TENANT_ADMIN)
 def tb_get_tenant_devices(jwt: str) -> List[Dict[str, Any]]:
     """Recupera tutti i device del tenant (solo per TENANT_ADMIN)."""
     out: List[Dict[str, Any]] = []
@@ -85,7 +75,7 @@ def tb_get_tenant_devices(jwt: str) -> List[Dict[str, Any]]:
             break
     return out
 
-
+#Trova device ID per nome
 def tb_find_device_id_by_name(jwt: str, customer_id: str, device_name: str) -> Optional[str]:
     devices = tb_get_customer_devices(jwt, customer_id)
     for device in devices:
@@ -107,7 +97,7 @@ def tb_fetch_all_encrypted(jwt: str, device_id: str, limit: int = 100) -> List[D
     data = r.json()
     return data.get("encrypted_value", [])
     
-#CHIAVI
+#Gestione Chiavi
 def _load_private_hex_for_room(room: str) -> Optional[str]:
     pem_path = KEYS_DIR / f"private_key_{room}.pem"
     hex_path = KEYS_DIR / f"private_key_{room}.hex"
@@ -117,13 +107,14 @@ def _load_private_hex_for_room(room: str) -> Optional[str]:
 
     if not pem_path.exists():
         return None
-
+        
+    #Estrae la chiave privata dal PEM e la formatta in hex
     pem_data = pem_path.read_bytes()
     key = serialization.load_pem_private_key(pem_data, password=None, backend=default_backend())
     priv_int = key.private_numbers().private_value
     return f"{priv_int:064x}"
 
-
+#Decifra base64 con privata hex; restituisce stringa o None
 def decrypt_b64_with_priv_hex(b64_cipher: str, priv_hex: str) -> Optional[str]:
     try:
         ciphertext = base64.b64decode(b64_cipher.encode())
@@ -131,8 +122,8 @@ def decrypt_b64_with_priv_hex(b64_cipher: str, priv_hex: str) -> Optional[str]:
         return plaintext.decode(errors="ignore")
     except Exception:
         return None
-
-#AUTORIZZAZIONE
+        
+#Autorizzazione
 def _load_policy() -> Dict[str, List[str]]:
     if POLICY_FILE.exists():
         try:
@@ -140,7 +131,6 @@ def _load_policy() -> Dict[str, List[str]]:
         except Exception:
             return {}
     return {}
-
 
 def is_user_allowed_for_room(user_info: Dict[str, Any], room: str) -> bool:
     authority = user_info.get("authority")
@@ -151,15 +141,18 @@ def is_user_allowed_for_room(user_info: Dict[str, Any], room: str) -> bool:
     else:
         return False
 
+    #Deve avere un customer_id valido
     customer_id = user_info.get("customerId", {}).get("id")
     if not customer_id:
         return False
 
+    #La stanza deve essere un device del customer
     devices = tb_get_customer_devices(user_info["jwt"], customer_id)
     device_names = {d.get("name") for d in devices}
     if room not in device_names:
         return False
-
+        
+    #Policy per identità (email, name, first.last)
     pol = _load_policy()
     identities = [
         (user_info.get("email") or "").lower(),
@@ -169,9 +162,9 @@ def is_user_allowed_for_room(user_info: Dict[str, Any], room: str) -> bool:
     for ident in identities:
         if ident and ident in pol:
             return room in set(pol[ident])
-    return True
+    return True #Se nessuna policy limita, consenti
     
-#MANDA DATI DECIFRATI
+#Manda i dati decifrati
 def tb_fetch_encrypted_series(jwt: str, device_id: str,
                               start_ts: int, end_ts: int,
                               limit: int = 26000) -> List[Dict[str, Any]]:
@@ -203,7 +196,7 @@ def tb_fetch_encrypted_series(jwt: str, device_id: str,
 
     return all_data
 
-
+#Scrive su TB decrypted_value (bulk o dummy se vuoto)
 def send_bulk_decrypted_to_tb(jwt: str, device_id: str, values: List[Dict[str, Any]]):
     url = f"{TB_URL}/api/plugins/telemetry/DEVICE/{device_id}/timeseries/values"
     headers = {"Content-Type": "application/json", "X-Authorization": f"Bearer {jwt}"}
@@ -220,7 +213,7 @@ def send_bulk_decrypted_to_tb(jwt: str, device_id: str, values: List[Dict[str, A
     except Exception as e:
         print(f"❌ Errore POST bulk: {e}")
 
-
+#Inizializza decrypted_value=0 per tutti i device visibili all’utente
 def send_dummy_to_all_rooms(jwt: str, user: Dict[str, Any]):
     authority = user.get("authority")
     if authority == "TENANT_ADMIN":
@@ -237,14 +230,16 @@ def send_dummy_to_all_rooms(jwt: str, user: Dict[str, Any]):
         r = requests.post(url, headers=headers, json=payload, timeout=REQUEST_TIMEOUT)
         print(f"{dev['name']} -> {r.status_code} {r.text}")
 
-#API FLASK
+#API Flask
 @app.get("/decrypt")
+#Endpoint principale: autorizza, decifra, scrive su TB e restituisce i valori
 def api_decrypt():
     auth = request.headers.get("Authorization", "")
     if not auth.startswith("Bearer "):
         return jsonify({"error": "missing_or_invalid_authorization_header"}), 401
     jwt = auth.split(" ", 1)[1].strip()
 
+    #Parametri query
     room = request.args.get("room")
     if not room:
         return jsonify({"error": "missing_room_param"}), 400
@@ -253,6 +248,7 @@ def api_decrypt():
     end_ts = int(request.args.get("endTs", str(int(__import__("time").time() * 1000))))
     limit = int(request.args.get("limit", "100000"))
 
+    #Info utente + check permessi
     user = tb_get_user_info(jwt)
     if not user:
         return jsonify({"error": "invalid_token"}), 401
@@ -261,11 +257,13 @@ def api_decrypt():
     if not is_user_allowed_for_room(user, room):
         return jsonify({"error": "forbidden"}), 403
 
+    #Mappatura room -> device id nel customer
     customer_id = user.get("customerId", {}).get("id")
     dev_id = tb_find_device_id_by_name(jwt, customer_id, room)
     if not dev_id:
         return jsonify({"error": "device_not_found"}), 404
 
+    #Fetch encrypted, load key, decrypt
     enc_list = tb_fetch_encrypted_series(jwt, dev_id, start_ts, end_ts, limit)
     if not enc_list:
         return jsonify({"error": "no_encrypted_values"}), 404
@@ -288,11 +286,13 @@ def api_decrypt():
             "decrypted_value": val
         })
 
+    #Scrittura bulk su TB
     send_bulk_decrypted_to_tb(jwt, dev_id, decrypted_list)
 
+    #Risposta API
     return jsonify({"room": room, "count": len(decrypted_list), "values": decrypted_list})
 
-
+#Richiama l’endpoint /decrypt in un contesto di test Flask
 def cli_decrypt(jwt: str, room: str) -> None:
     class DummyReq:
         headers = {"Authorization": f"Bearer {jwt}"}
@@ -304,7 +304,8 @@ def cli_decrypt(jwt: str, room: str) -> None:
             print(status, body.get_json())
         else:
             print(resp.get_json())
-
+            
+#EntryPoint
 if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser(description="Users-only TB decrypt service (API + CLI)")
