@@ -1,13 +1,15 @@
-# SmartHome
-Progetto IoT con ThingsBoard e Docker
+# SmartHome - Progetto IoT con ThingsBoard e Docker
 
 Progetto universitario realizzato con ThingsBoard e Docker per il monitoraggio di dispositivi IoT.
 
 ## Tecnologie utilizzate
 
-- ThingsBoard CE (Community Edition): https://thingsboard.io
-- Docker & Docker Compose: https://www.docker.com
+- [ThingsBoard CE](https://thingsboard.io)
+- [Docker](https://www.docker.com) & Docker Compose
 - PostgreSQL
+- Python
+- HTML/JS per widget custom
+- Algoritmo di routing AODV
 
 ## Installazione e Configurazione
 
@@ -32,36 +34,53 @@ Credenziali di default di ThingsBoard CE:
 
 ### 4. Configurazione iniziale
 - Crea un nuovo tenant
-- Aggiungi un nuovo utente
-- Crea dispositivi e dashboard
-- Configura allarmi e notifiche
+- Aggiungi utenti personalizzati
+- Registra i dispositivi
+- Crea dashboard e widget
+- Configura allarmi e notifiche automatiche
 
-## Collaboratori
+## Struttura del progetto
+- docker-compose.yml — configurazione Docker per ThingsBoard e PostgreSQL
+- README.md — documentazione del progetto
+- CO2_Adeunis/ — dataset CO₂ con timestamp e metadati
+- ground_plan_sensors.jpg — piantina delle stanze
+- tb_decrypt_service_users_only.py — script di decifratura dati
+- SvolgimentoProgetto/ — report dettagliato dello sviluppo
+- Spiegazioni ed Istruzioni/ — guide e manuali d'uso
+- dashboards/ — JSON per importazione dashboard
+
+## Funzionalità Principali
+- Monitoraggio in tempo reale dei sensori ambientali (CO₂)
+- Visualizzazione su dashboard personalizzate
+- Gestione utenti e tenant
+- Allarmi automatici
+- Script Python per cifratura/decifratura dati e invio a ThingsBoard
+- Simulazione di rete tra dispositivi con AODV (Route Request & Reply)
+
+## Sicurezza e Autenticazione
+- Widget custom in HTML includono autenticazione tramite email/password
+- I dati dei sensori sono cifrati in uscita e decifrati prima della visualizzazione
+- Gestione separata degli utenti per tenant
+  
+## Algoritmo di Routing
+- Utilizzato AODV (Ad hoc On-Demand Distance Vector) per simulare la comunicazione tra stanze:
+- Route Request (RREQ)
+- Route Reply (RREP)
+- Mappatura sulla cartina ground_plan_sensors.jpg
+
+## Uso del progetto
+Dopo l’avvio:
+- Visualizza dati ambientali su dashboard dinamiche
+- Accedi ai grafici CO₂ per ogni stanza
+- Crea utenti e gestisci permessi
+- Ricevi allarmi in base a soglie di sicurezza
+- Esegui import/export di configurazioni ThingsBoard
+
+## Collaboratrici
 - Martina Filice
 - Corinne D'Elia
 
-## Struttura del progetto
-- docker-compose.yml — Configurazione per ThingsBoard e PostgreSQL
-- README.md — Documentazione del progetto
-- CO2_Adeunis - Dataset contenente i dati di CO2 riguardante 10 stanze a cui è associato il Timestamp e Data e ora
-- ground_plan_sensors.jpg - Piantina delle stanze
-- tb_decrypt_service_users_only.py - Servizio per decifrare la telemetria cifrata dei device su ThingsBoard
-- SvolgimentoProgetto/ — report passo-passo del progetto
-- Spiegazioni ed Istruzioni/ — guide e manuali d’uso
-- dashboards/ — JSON pronti all’importazione
-
-## Uso del progetto
-Una volta avviato tutto si può:
-- Monitorare i sensori
-- Vedere i grafici CO2 per ogni stanza
-- Gestire utenti e tenant
-- Inviare allarmi e notifiche
-- Creazione di diverse dashboard con all'interno uno o più widget
-
 ## Note:
-- Il progetto è sviluppato con l'utilizzo di Docker Desktop come applicazione e ci si collega tramite interfaccia web a ThingsBoard
-- Per lavorare in gruppo, i file vengono condivisi su GitHub.
-- Per importare dati/dispositivi tra ambienti diversi si usano le funzioni di export/import di ThingsBoard
-- Nella piattaforma viene utilizzato HTML per creare un grafico con bottone per accedere ai dati e l'aggiunta di email e password per verificare l'autenticazione
-- Viene utilizzato python per gli script che servono per mandare i dati cifrati ai dispositivi e poi decifrare i dati e rimandarli a ThingsBoard per visualizzarli tramite i grafici
-- Come algoritmo di routing viene utilizzato AODV, con i relativi messaggi di Route Request e Reply, per mettere in comunicazione le varie stanze in base alla cartina 
+- rogetto compatibile con Docker Desktop
+- GitHub usato per la collaborazione in gruppo
+- Import/export dei dispositivi e dati tramite funzionalità ThingsBoard
