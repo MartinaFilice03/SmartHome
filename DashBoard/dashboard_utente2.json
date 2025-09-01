@@ -2290,7 +2290,7 @@
               "timewindowMs": 86400000,
               "fixedTimewindow": {
                 "startTimeMs": 1666562400000,
-                "endTimeMs": 1756717111302
+                "endTimeMs": 1756730100000
               },
               "quickInterval": "CURRENT_DAY",
               "hideInterval": false,
@@ -2470,7 +2470,7 @@
               "timewindowMs": 86400000,
               "fixedTimewindow": {
                 "startTimeMs": 1666562400000,
-                "endTimeMs": 1756717281051
+                "endTimeMs": 1756730100000
               },
               "quickInterval": "CURRENT_DAY",
               "hideInterval": false,
@@ -2660,7 +2660,7 @@
               "timewindowMs": 86400000,
               "fixedTimewindow": {
                 "startTimeMs": 1666565940000,
-                "endTimeMs": 1756718020962
+                "endTimeMs": 1756730100000
               },
               "quickInterval": "CURRENT_DAY",
               "hideInterval": false,
@@ -2850,7 +2850,7 @@
               "timewindowMs": 86400000,
               "fixedTimewindow": {
                 "startTimeMs": 1666562400000,
-                "endTimeMs": 1756718073645
+                "endTimeMs": 1756730160000
               },
               "quickInterval": "CURRENT_DAY",
               "hideInterval": false,
@@ -3040,7 +3040,7 @@
               "timewindowMs": 86400000,
               "fixedTimewindow": {
                 "startTimeMs": 1666562400000,
-                "endTimeMs": 1756718167012
+                "endTimeMs": 1756730100000
               },
               "quickInterval": "CURRENT_DAY",
               "hideInterval": false,
