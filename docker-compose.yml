@@ -1,32 +1,33 @@
 services:
+  #Servizio PostgreSQL 16
   postgres:
-    restart: always
-    image: "postgres:16"
+    restart: always #Riavvia sempre il container
+    image: "postgres:16" #Usa l'immagine ufficiale di PostgreSQL versione 16
     ports:
-      - "5433:5432"
+      - "5433:5432" #Espone la porta 5432 del container sulla 5433 dell'host
     environment:
-      POSTGRES_DB: thingsboard
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: thingsboard #Nome del database da creare
+      POSTGRES_USER: postgres #Utente di default
+      POSTGRES_PASSWORD: postgres #Password dell'utente
     volumes:
-      - postgres-data:/var/lib/postgresql/data
+      - postgres-data:/var/lib/postgresql/data #Volume per persistenza dei dati
 
   thingsboard-ce:
-    restart: always
-    image: "thingsboard/tb-node:4.1.0"
+    restart: always #Riavvia sempre il container
+    image: "thingsboard/tb-node:4.1.0" #Immagine di ThingsBoard CE versione 4.1.0
     ports:
-      - "8080:8080"
-      - "7070:7070"
-      - "1883:1883"
-      - "8883:8883"
-      - "5683-5688:5683-5688/udp"
+      - "8080:8080" #Porta per interfaccia web
+      - "7070:7070" #Porta RPC
+      - "1883:1883" #Porta MQQT
+      - "8883:8883" #Porta MQQT over SSL
+      - "5683-5688:5683-5688/udp" #Porte CoAP/LwMsm(UDP)
     environment:
-      TB_QUEUE_TYPE: in-memory
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/thingsboard
-      SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: postgres
+      TB_QUEUE_TYPE: in-memory #Coda in memoria (adatta per test, non per produzione)
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/thingsboard #Connessione al DB
+      SPRING_DATASOURCE_USERNAME: postgres #Utente DB
+      SPRING_DATASOURCE_PASSWORD: postgres #Password DB
     depends_on:
-      - postgres
+      - postgres #Avvia prima il servizio PostgreSQL
 
 volumes:
-  postgres-data:
+  postgres-data: #Volume per i dati persistenti di PostgreSQL
