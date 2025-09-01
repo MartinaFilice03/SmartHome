@@ -1852,10 +1852,10 @@
             "history": {
               "historyType": 1,
               "interval": 1000,
-              "timewindowMs": 86400000,
+              "timewindowMs": 2592000000,
               "fixedTimewindow": {
-                "startTimeMs": 1756332000000,
-                "endTimeMs": 1756661905871
+                "startTimeMs": 1754002740000,
+                "endTimeMs": 1756730069146
               },
               "quickInterval": "CURRENT_DAY",
               "hideInterval": false,
@@ -2004,7 +2004,8 @@
             "statusList": [],
             "severityList": [
               "CRITICAL",
-              "MAJOR"
+              "MAJOR",
+              "WARNING"
             ],
             "typeList": [],
             "searchPropagatedAlarms": false,
@@ -2048,7 +2049,7 @@
               "timewindowMs": 86400000,
               "fixedTimewindow": {
                 "startTimeMs": 1751234400000,
-                "endTimeMs": 1756661885138
+                "endTimeMs": 1756730100000
               },
               "quickInterval": "CURRENT_DAY",
               "hideInterval": false,
@@ -2197,7 +2198,8 @@
             "statusList": [],
             "severityList": [
               "CRITICAL",
-              "MAJOR"
+              "MAJOR",
+              "WARNING"
             ],
             "typeList": [],
             "searchPropagatedAlarms": false,
@@ -2241,7 +2243,7 @@
               "timewindowMs": 86400000,
               "fixedTimewindow": {
                 "startTimeMs": 1756159200000,
-                "endTimeMs": 1756661943233
+                "endTimeMs": 1756730160000
               },
               "quickInterval": "CURRENT_DAY",
               "hideInterval": false,
@@ -2390,7 +2392,8 @@
             "statusList": [],
             "severityList": [
               "CRITICAL",
-              "MAJOR"
+              "MAJOR",
+              "WARNING"
             ],
             "typeList": [],
             "searchPropagatedAlarms": false,
@@ -2431,7 +2434,7 @@
               "timewindowMs": 86400000,
               "fixedTimewindow": {
                 "startTimeMs": 1756159200000,
-                "endTimeMs": 1756661972151
+                "endTimeMs": 1756730160000
               },
               "quickInterval": "CURRENT_DAY",
               "hideInterval": false,
@@ -2580,7 +2583,8 @@
             "statusList": [],
             "severityList": [
               "CRITICAL",
-              "MAJOR"
+              "MAJOR",
+              "WARNING"
             ],
             "typeList": [],
             "searchPropagatedAlarms": false,
