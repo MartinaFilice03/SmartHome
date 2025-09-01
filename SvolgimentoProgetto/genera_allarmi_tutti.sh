@@ -17,7 +17,7 @@ start_ts=$(($(date +%s)*1000))
 end_ts=$((start_ts + 600000)) 
 
 #Valore medio simulato per la logica di allarme
-media_calcolata=450
+media_calcolata=200
 
 #Ciclo su ogni device
 for device_id in $device_ids; do
