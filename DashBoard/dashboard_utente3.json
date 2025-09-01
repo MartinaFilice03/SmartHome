@@ -961,7 +961,7 @@
               "timewindowMs": 86400000,
               "fixedTimewindow": {
                 "startTimeMs": 1666562400000,
-                "endTimeMs": 1756718774237
+                "endTimeMs": 1756730100000
               },
               "quickInterval": "CURRENT_DAY",
               "hideInterval": false,
@@ -1151,7 +1151,7 @@
               "timewindowMs": 86400000,
               "fixedTimewindow": {
                 "startTimeMs": 1666562400000,
-                "endTimeMs": 1756718838656
+                "endTimeMs": 1756730100000
               },
               "quickInterval": "CURRENT_DAY",
               "hideInterval": false,
