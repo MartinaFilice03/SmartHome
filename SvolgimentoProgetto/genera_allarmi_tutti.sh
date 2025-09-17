@@ -16,29 +16,28 @@ device_ids=$(echo "$response" | jq -r '.data[].id.id')
 start_ts=$(($(date +%s)*1000))
 end_ts=$((start_ts + 600000)) 
 
-#Valore medio simulato per la logica di allarme
-media_calcolata=200
+#Valore fittizio della media (simulazione)
+media_calcolata=500
 
-#Ciclo su ogni device
+#Loop su ogni dispositivo
 for device_id in $device_ids; do
   echo "📡 Controllo per dispositivo: $device_id (media: $media_calcolata)"
 
-  #Selezione tipo/severità in base alla media
-  if (( media_calcolata < 350 )); then
-    tipo_allarme="media_bassa"
-    severity="WARNING"
-    dettaglio="Sotto la soglia minima"
+    if (( media_calcolata < 350 )); then
+      tipo_allarme="low_average"
+      severity="WARNING"
+      dettaglio="Below minimum threshold"
 
-  elif (( media_calcolata > 800 )); then
-    tipo_allarme="media_alta"
-    severity="CRITICAL"
-    dettaglio="Oltre la soglia massima"
+    elif (( media_calcolata > 600 )); then
+      tipo_allarme="high_average"
+      severity="CRITICAL"
+      dettaglio="Above maximum threshold"
 
-  else
-    tipo_allarme="media_fuori_range"
-    severity="MAJOR"
-    dettaglio="Media fuori range accettabile"
-  fi
+    else
+      tipo_allarme="average_in_range"
+      severity="MINOR"
+      dettaglio="Average within acceptable range"
+    fi
 
   #Costruzione payload allarme 
   json=$(jq -n \
