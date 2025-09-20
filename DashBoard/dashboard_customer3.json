@@ -1,5 +1,5 @@
 {
-  "title": "DashBoard Utente3",
+  "title": "DashBoard Customer3",
   "image": null,
   "mobileHide": false,
   "mobileOrder": null,
@@ -64,7 +64,7 @@
                 {
                   "name": "decrypted_value",
                   "type": "timeseries",
-                  "label": "Valori Decifrati",
+                  "label": "Decrypted value",
                   "color": "#2196f3",
                   "settings": {
                     "yAxisId": "default",
@@ -189,13 +189,15 @@
           "settings": {
             "showLegend": true,
             "legendConfig": {
+              "direction": "column",
               "position": "top",
               "sortDataKeys": false,
               "showMin": false,
               "showMax": false,
               "showAvg": true,
               "showTotal": true,
-              "showLatest": false
+              "showLatest": false,
+              "valueFormat": null
             },
             "thresholds": [],
             "dataZoom": true,
@@ -440,7 +442,7 @@
             "tooltipLabelColor": "rgba(0, 0, 0, 0.76)",
             "tooltipHideZeroValues": null
           },
-          "title": "Stanza Meeting1",
+          "title": "Room Meeting1",
           "dropShadow": true,
           "enableFullscreen": true,
           "titleStyle": null,
@@ -507,7 +509,7 @@
                 {
                   "name": "decrypted_value",
                   "type": "timeseries",
-                  "label": "Valori decifrati",
+                  "label": "Decrypted value",
                   "color": "#2196f3",
                   "settings": {
                     "yAxisId": "default",
@@ -632,13 +634,15 @@
           "settings": {
             "showLegend": true,
             "legendConfig": {
+              "direction": "column",
               "position": "top",
               "sortDataKeys": false,
               "showMin": false,
               "showMax": false,
               "showAvg": true,
               "showTotal": true,
-              "showLatest": false
+              "showLatest": false,
+              "valueFormat": null
             },
             "thresholds": [],
             "dataZoom": true,
@@ -883,7 +887,7 @@
             "tooltipLabelColor": "rgba(0, 0, 0, 0.76)",
             "tooltipHideZeroValues": null
           },
-          "title": "Stanza Meeting1",
+          "title": "Room Meeting1",
           "dropShadow": true,
           "enableFullscreen": true,
           "titleStyle": null,
@@ -956,7 +960,7 @@
               "hideQuickInterval": false
             },
             "history": {
-              "historyType": 1,
+              "historyType": 0,
               "interval": 1000,
               "timewindowMs": 86400000,
               "fixedTimewindow": {
@@ -994,7 +998,7 @@
             "enableStickyAction": false,
             "enableFilter": true,
             "entitiesTitle": null,
-            "alarmsTitle": "Allarme Stanza Meeting1"
+            "alarmsTitle": "Alarm for Meeting1"
           },
           "title": "Alarms table",
           "dropShadow": true,
@@ -1146,7 +1150,7 @@
               "hideQuickInterval": false
             },
             "history": {
-              "historyType": 1,
+              "historyType": 0,
               "interval": 1000,
               "timewindowMs": 86400000,
               "fixedTimewindow": {
@@ -1184,7 +1188,7 @@
             "enableStickyAction": false,
             "enableFilter": true,
             "entitiesTitle": null,
-            "alarmsTitle": "Allarmi Meeting2"
+            "alarmsTitle": "Alarm for Meeting2"
           },
           "title": "Alarms table",
           "dropShadow": true,
@@ -1314,46 +1318,95 @@
         "row": 0,
         "col": 0,
         "id": "04529140-7c8c-bfa9-c627-afb6f8f1c54f"
+      },
+      "a0031604-53fd-d58e-8d84-a4447724b9c0": {
+        "typeFullFqn": "system.cards.html_card",
+        "type": "static",
+        "sizeX": 7.5,
+        "sizeY": 3,
+        "config": {
+          "datasources": [
+            {
+              "type": "static",
+              "name": "function",
+              "dataKeys": [
+                {
+                  "name": "f(x)",
+                  "type": "function",
+                  "label": "Random",
+                  "color": "#2196f3",
+                  "settings": {},
+                  "_hash": 0.15479322438769105,
+                  "funcBody": "var value = prevValue + Math.random() * 100 - 50;\nvar multiplier = Math.pow(10, 2 || 0);\nvar value = Math.round(value * multiplier) / multiplier;\nif (value < -1000) {\n\tvalue = -1000;\n} else if (value > 1000) {\n\tvalue = 1000;\n}\nreturn value;"
+                }
+              ]
+            }
+          ],
+          "timewindow": {
+            "realtime": {
+              "timewindowMs": 60000
+            }
+          },
+          "showTitle": false,
+          "backgroundColor": "rgb(255, 255, 255)",
+          "color": "rgba(0, 0, 0, 0.87)",
+          "padding": "8px",
+          "settings": {
+            "cardHtml": "<h3 style=\"margin-bottom: 10px;\">Indoor Air Monitoring</h3>\n<h4 style=\"color:gray; font-size: 17px\">Smart Home – CO₂ Decryption and Visualization</h4>\n\n<p style=\"font-size: 14px;\">\n  This dashboard displays the devices assigned to User 1. Each chart shows the decrypted historical values of CO₂ recorded in real time from each room. <br><br>\n  The user can select a specific room to request its associated data and view a chart populated with the average CO₂ values recorded for that room.\n</p>",
+            "cardCss": ".card {\n    font-weight: bold;\n    font-size: 32px;\n    color: #999;\n    width: 100%;\n    height: 100%;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}"
+          },
+          "title": "HTML Card",
+          "dropShadow": true
+        },
+        "row": 0,
+        "col": 0,
+        "id": "a0031604-53fd-d58e-8d84-a4447724b9c0"
       }
     },
     "states": {
       "default": {
-        "name": "DashBoard Utente3",
+        "name": "DashBoard Customer3",
         "root": true,
         "layouts": {
           "main": {
             "widgets": {
               "0e92d3fa-cc65-a457-78d4-5eee5f9a7805": {
-                "sizeX": 7,
-                "sizeY": 6,
+                "sizeX": 11,
+                "sizeY": 8,
                 "row": 0,
                 "col": 0
               },
               "6dcefe91-2ec4-0001-04be-c9b52165c1cd": {
-                "sizeX": 8,
-                "sizeY": 6,
+                "sizeX": 11,
+                "sizeY": 8,
                 "mobileHeight": null,
-                "row": 0,
-                "col": 7
+                "row": 8,
+                "col": 0
               },
               "d9654218-469d-be2a-03d6-8843074091db": {
-                "sizeX": 8,
-                "sizeY": 6,
+                "sizeX": 11,
+                "sizeY": 8,
                 "mobileHeight": null,
-                "row": 0,
-                "col": 15
+                "row": 8,
+                "col": 11
               },
               "6253ed33-d034-5276-aeda-82d439bbaa30": {
-                "sizeX": 8,
-                "sizeY": 7,
-                "row": 6,
+                "sizeX": 11,
+                "sizeY": 8,
+                "row": 16,
                 "col": 0
               },
               "04529140-7c8c-bfa9-c627-afb6f8f1c54f": {
-                "sizeX": 10,
-                "sizeY": 7,
-                "row": 6,
-                "col": 8
+                "sizeX": 11,
+                "sizeY": 8,
+                "row": 16,
+                "col": 11
+              },
+              "a0031604-53fd-d58e-8d84-a4447724b9c0": {
+                "sizeX": 11,
+                "sizeY": 8,
+                "row": 0,
+                "col": 11
               }
             },
             "gridSettings": {
@@ -1414,6 +1467,6 @@
       "toolbarAlwaysOpen": true
     }
   },
-  "name": "DashBoard Utente3",
+  "name": "DashBoard Customer3",
   "resources": []
 }
