@@ -1,7 +1,7 @@
 #!/bin/bash
 
-#Token dell'amministratore
-TOKEN="eyJhbGciOiJIUzUxMiJ9..."
+#Inserire il token dell'amministratore
+TOKEN="eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJmbWFydHkyMzA4QGdtYWlsLmNvbSIsInVzZXJJZCI6IjE1OTU2MTEwLTZiZDYtMTFmMC05N2U1LWMxMWFiMWIzN2IxMyIsInNjb3BlcyI6WyJURU5BTlRfQURNSU4iXSwic2Vzc2lvbklkIjoiODdkMjAwMjctYTM2My00ODNjLTk5OTMtYWUxZjM3NDk4OTA0IiwiZXhwIjoxNzU4MTMxNzgxLCJpc3MiOiJ0aGluZ3Nib2FyZC5pbyIsImlhdCI6MTc1ODEyMjc4MSwiZmlyc3ROYW1lIjoiTWFydGluYSIsImxhc3ROYW1lIjoiRmlsaWNlIiwiZW5hYmxlZCI6dHJ1ZSwiaXNQdWJsaWMiOmZhbHNlLCJ0ZW5hbnRJZCI6IjFjMDRhZDQwLTZiZDUtMTFmMC05N2U1LWMxMWFiMWIzN2IxMyIsImN1c3RvbWVySWQiOiIxMzgxNDAwMC0xZGQyLTExYjItODA4MC04MDgwODA4MDgwODAifQ.dvXavzCE5431Me6QiagNiPOJEn3FpFanW0m-pYboXxbZ93fTpwXx28kEv57DC9VttIHH1yS0ud1u2OP9Gf3X7w"
 THINGSBOARD_URL="http://localhost:8080"
 
 #Recupera tutti gli ID dei dispositivi
@@ -9,12 +9,13 @@ echo "📤 Chiamata API per ottenere i dispositivi:"
 response=$(curl -s -X GET "$THINGSBOARD_URL/api/tenant/devices?pageSize=1000&page=0" \
   -H "X-Authorization: Bearer $TOKEN")
 
-echo "$response" | jq . #Stampa JSON formattato (debug)
+echo "$response" | jq . 
+
 device_ids=$(echo "$response" | jq -r '.data[].id.id')
 
-#Finestra temporale allarme
+#Timestamp
 start_ts=$(($(date +%s)*1000))
-end_ts=$((start_ts + 600000)) 
+end_ts=$((start_ts + 600000))  #+10 minuti
 
 #Valore fittizio della media (simulazione)
 media_calcolata=500
@@ -39,7 +40,6 @@ for device_id in $device_ids; do
       dettaglio="Average within acceptable range"
     fi
 
-  #Costruzione payload allarme 
   json=$(jq -n \
     --arg id "$device_id" \
     --arg type "$tipo_allarme" \
@@ -64,15 +64,13 @@ for device_id in $device_ids; do
       }
     }')
 
-  #Invio allarme
   response=$(curl -s -o /dev/null -w "%{http_code}" -X POST "$THINGSBOARD_URL/api/alarm" \
     -H "Content-Type: application/json" \
     -H "X-Authorization: Bearer $TOKEN" \
     -d "$json")
 
-  #Esito
   if [[ "$response" == "200" || "$response" == "201" ]]; then
-    echo "✅ Allarme '$tipo_allarme' creato con successo per $device_id"
+    echo ✅ Alarm '$tipo_allarme' successfully created for $device_id
   else
     echo "❌ Errore HTTP $response per $device_id"
   fi
